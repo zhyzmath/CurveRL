@@ -4,9 +4,9 @@ Official implementation of **CurveRL: Principled Distribution-Aware Context Rewe
 
 CurveRL performs prompt reweighting in RLVR as **context-distribution control**. Instead of weighting each prompt by a pointwise transformation of its empirical pass rate $\hat{p}$, CurveRL uses the prompt's position in the *evolving distribution* of pass rates over a sliding window of past training batches. The per-prompt weight is
 
-$$w_t(\hat{p}) = \frac{\hat{f}_{\text{ref}}(\hat{p})}{\hat{F}_{\text{ref}}(\hat{p})}$$
+$$w_t(\hat{p}) = \frac{\hat{f}_{\mathrm{ref}}(\hat{p})}{\hat{F}_{\mathrm{ref}}(\hat{p})}$$
 
-where $\hat{f}_{\text{ref}}$ and $\hat{F}_{\text{ref}}$ are the density and CDF of pass rates estimated from the last $t_0$ training batches. See Algorithm 1 in the paper for the full update.
+where $\hat{f}_\mathrm{ref}$ and $\hat{F}_\mathrm{ref}$ are the density and CDF of pass rates estimated from the last $t_0$ training batches. See Algorithm 1 in the paper for the full update.
 
 The implementation is built on top of [`verl`](https://github.com/volcengine/verl) (Ray + Hydra + FSDP + vLLM) and [`maxrl`](https://github.com/tajwarfahim/maxrl).
 
@@ -127,7 +127,7 @@ Other implementation choices are fixed in code to match the paper:
 
 - `num_bins = N + 1` (histogram resolution matches the discrete support of $\hat{p}$).
 - All-fail ($\hat{p} = 0$) and all-success ($\hat{p} = 1$) groups are excluded from both the active reweighting set and the sliding pool.
-- The weight is the raw ratio $\hat{f}_{\text{ref}}(\hat{p}) / \hat{F}_{\text{ref}}(\hat{p})$.
+- The weight is the raw ratio $\hat{f}_\mathrm{ref}(\hat{p}) / \hat{F}_\mathrm{ref}(\hat{p})$.
 
 ## Citation
 
