@@ -2,11 +2,13 @@
 
 Official implementation of **CurveRL: Principled Distribution-Aware Context Reweighting for LLM Reasoning**.
 
-CurveRL performs prompt reweighting in RLVR as **context-distribution control**. Instead of weighting each prompt by a pointwise transformation of its empirical pass rate $\hat{p}$, CurveRL uses the prompt's position in the *evolving distribution* of pass rates over a sliding window of past training batches. The per-prompt weight is
+CurveRL performs prompt reweighting in RLVR as **context-distribution control**. Instead of weighting each prompt by a pointwise transformation of its empirical pass rate `p`, CurveRL uses the prompt's position in the *evolving distribution* of pass rates over a sliding window of past training batches. The per-prompt weight is the ratio of the density to the CDF of pass rates, both estimated from the last `t0` training batches:
 
-$$w_t(\hat{p}) = \frac{\hat{f}_{\mathrm{ref}}(\hat{p})}{\hat{F}_{\mathrm{ref}}(\hat{p})}$$
+```
+w(p) = f_ref(p) / F_ref(p)
+```
 
-where $\hat{f}_\mathrm{ref}$ and $\hat{F}_\mathrm{ref}$ are the density and CDF of pass rates estimated from the last $t_0$ training batches. See Algorithm 1 in the paper for the full update.
+See Algorithm 1 in the paper for the full update.
 
 The implementation is built on top of [`verl`](https://github.com/volcengine/verl) (Ray + Hydra + FSDP + vLLM) and [`maxrl`](https://github.com/tajwarfahim/maxrl).
 
@@ -62,7 +64,7 @@ python examples/curverl_data_preprocess/minerva.py    --local_dir data/minerva
 
 The launcher reads all knobs from environment variables and dispatches a single `verl.trainer.main_ppo` job.
 
-### CurveRL ($t_0 = 10$)
+### CurveRL (`t0 = 10`)
 
 ```bash
 ADVANTAGE_ESTIMATOR=curverl \
@@ -115,19 +117,19 @@ Useful overrides for managing rollout pressure during large pass@N evaluations:
 
 ## CurveRL hyperparameter
 
-The CurveRL update is governed by exactly **one** hyperparameter, the sliding-window size $t_0$:
+The CurveRL update is governed by exactly **one** hyperparameter, the sliding-window size `t0`:
 
 | Setting | shell env | Hydra |
 |---|---|---|
-| $t_0$ (number of past training batches kept in the window) | `CURVERL_POOL_NUM` | `algorithm.curverl_pool_num` |
+| `t0` (number of past training batches kept in the window) | `CURVERL_POOL_NUM` | `algorithm.curverl_pool_num` |
 
 `CURVERL_POOL_NUM=10` is the paper default. `CURVERL_POOL_NUM=0` falls back to using only the current batch as the reference distribution.
 
 Other implementation choices are fixed in code to match the paper:
 
-- `num_bins = N + 1` (histogram resolution matches the discrete support of $\hat{p}$).
-- All-fail ($\hat{p} = 0$) and all-success ($\hat{p} = 1$) groups are excluded from both the active reweighting set and the sliding pool.
-- The weight is the raw ratio $\hat{f}_\mathrm{ref}(\hat{p}) / \hat{F}_\mathrm{ref}(\hat{p})$.
+- `num_bins = N + 1` (histogram resolution matches the discrete support of `p`).
+- All-fail (`p = 0`) and all-success (`p = 1`) groups are excluded from both the active reweighting set and the sliding pool.
+- The weight is the raw ratio `f_ref(p) / F_ref(p)`.
 
 ## Citation
 
