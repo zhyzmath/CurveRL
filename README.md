@@ -2,13 +2,13 @@
 
 Official implementation of **CurveRL: Principled Distribution-Aware Context Reweighting for LLM Reasoning**.
 
-CurveRL casts prompt reweighting in RLVR as **context-distribution control**. Instead of weighting each prompt by a pointwise transformation of its empirical pass rate `p̂`, CurveRL uses the prompt's position in the *evolving distribution* of pass rates over a sliding window of past training batches. The per-prompt weight is
+CurveRL performs prompt reweighting in RLVR as **context-distribution control**. Instead of weighting each prompt by a pointwise transformation of its empirical pass rate $\hat{p}$, CurveRL uses the prompt's position in the *evolving distribution* of pass rates over a sliding window of past training batches. The per-prompt weight is
 
-    w_t(p̂) = f_ref(p̂) / F_ref(p̂)
+$$w_t(\hat{p}) = \frac{\hat{f}_{\text{ref}}(\hat{p})}{\hat{F}_{\text{ref}}(\hat{p})}$$
 
-where `f_ref` and `F_ref` are the density and CDF of pass rates estimated from the last `t_0` training batches. See Algorithm 1 in the paper for the full update.
+where $\hat{f}_{\text{ref}}$ and $\hat{F}_{\text{ref}}$ are the density and CDF of pass rates estimated from the last $t_0$ training batches. See Algorithm 1 in the paper for the full update.
 
-The implementation is built on top of [`verl`](https://github.com/volcengine/verl) (Ray + Hydra + FSDP + vLLM) and [`maxrl`](https://github.com/tajwarfahim/maxrl)
+The implementation is built on top of [`verl`](https://github.com/volcengine/verl) (Ray + Hydra + FSDP + vLLM) and [`maxrl`](https://github.com/tajwarfahim/maxrl).
 
 ## Repository layout
 
@@ -16,8 +16,8 @@ The implementation is built on top of [`verl`](https://github.com/volcengine/ver
 - `verl/trainer/ppo/core_algos.py` — advantage estimators and losses. `AdvantageEstimator.CURVERL` and `compute_curverl_outcome_advantage` live here.
 - `verl/trainer/ppo/ray_trainer.py` — main `RayPPOTrainer` loop, threads the CurveRL sliding-window state across iterations and checkpoints (`curverl_state.pt`).
 - `verl/trainer/config/ppo_trainer.yaml` — canonical Hydra config.
-- `qwen3_experiments/run_qwen3_training.sh` — single training launcher used in the paper.
-- `qwen3_experiments/run_qwen3_eva.sh` — single evaluation launcher used in the paper.
+- `qwen3_experiments/run_qwen3_training.sh` — single training launcher.
+- `qwen3_experiments/run_qwen3_eva.sh` — single evaluation launcher.
 - `examples/curverl_data_preprocess/` — preprocessors for POLARIS-53K (training) and the eight math reasoning benchmarks reported in the paper (AIME 2025, BeyondAIME, HMMT 02/25, HMMT 02/26, MATH-500, BRUMO 2025, HMMT 11/25, Minerva).
 
 ## Installation
@@ -62,7 +62,7 @@ python examples/curverl_data_preprocess/minerva.py    --local_dir data/minerva
 
 The launcher reads all knobs from environment variables and dispatches a single `verl.trainer.main_ppo` job.
 
-### CurveRL (paper default, `t_0 = 10`)
+### CurveRL ($t_0 = 10$)
 
 ```bash
 ADVANTAGE_ESTIMATOR=curverl \
@@ -86,21 +86,6 @@ ADVANTAGE_ESTIMATOR=maxrl \
 MODEL_PATH=Qwen/Qwen3-1.7B-Base \
 bash qwen3_experiments/run_qwen3_training.sh
 ```
-
-### Paper hyperparameters (already the script defaults)
-
-| Knob | Value |
-|---|---|
-| `FULL_BATCH_SIZE` (`B`) | 256 |
-| `NUM_PER_PROMPT_ROLLOUTS` (`N`) | 8 |
-| `MAX_PROMPT_LENGTH` | 1024 |
-| `MAX_RESPONSE_LENGTH` | 4096 |
-| `LEARNING_RATE` | `1e-6` |
-| `TOTAL_EPOCHS` | 5 |
-| `CURVERL_POOL_NUM` (`t_0`) | 10 |
-| Hardware | 8x B200 GPUs, single node |
-
-Checkpoints land in `checkpoints/${PROJECT_NAME}/${EXPERIMENT_NAME}/global_step_*/`. The trainer also writes a merged HuggingFace model directory under each `global_step_*/actor/huggingface/` for direct evaluation on any GPU count.
 
 ## Evaluation
 
@@ -128,31 +113,21 @@ Useful overrides for managing rollout pressure during large pass@N evaluations:
 - `VAL_GEN_BATCH_SIZE` — split each prompt's rollouts into `ceil(N / VAL_GEN_BATCH_SIZE)` rounds.
 - `ROLLOUT_MAX_NUM_SEQS`, `MAX_NUM_BATCHED_TOKENS`, `MAX_MODEL_LEN` — vLLM scheduling limits.
 
-The training-time validator emits `validation_majority_vote_accuracy/.../majority@N`, the evaluator also reports `pass@k`, `worst@k`, and `maj@k` bootstrap summaries.
-
 ## CurveRL hyperparameter
 
-The CurveRL update is governed by exactly **one** hyperparameter, the sliding-window size `t_0`:
+The CurveRL update is governed by exactly **one** hyperparameter, the sliding-window size $t_0$:
 
 | Setting | shell env | Hydra |
 |---|---|---|
-| `t_0` (number of past training batches kept in the window) | `CURVERL_POOL_NUM` | `algorithm.curverl_pool_num` |
+| $t_0$ (number of past training batches kept in the window) | `CURVERL_POOL_NUM` | `algorithm.curverl_pool_num` |
 
 `CURVERL_POOL_NUM=10` is the paper default. `CURVERL_POOL_NUM=0` falls back to using only the current batch as the reference distribution.
 
 Other implementation choices are fixed in code to match the paper:
 
-- `num_bins = N + 1` (histogram resolution matches the discrete support of `p̂`).
-- All-fail (`p̂ = 0`) and all-success (`p̂ = 1`) groups are excluded from both the active reweighting set and the sliding pool.
-- The weight is the raw ratio `f_ref(p̂) / F_ref(p̂)`.
-
-## Tests
-
-```bash
-pytest -q tests/trainer/ppo/test_core_algos_on_cpu.py
-pytest -q tests/trainer/ppo/test_curverl_on_cpu.py
-pytest -q tests/special_sanity/test_config_docs.py
-```
+- `num_bins = N + 1` (histogram resolution matches the discrete support of $\hat{p}$).
+- All-fail ($\hat{p} = 0$) and all-success ($\hat{p} = 1$) groups are excluded from both the active reweighting set and the sliding pool.
+- The weight is the raw ratio $\hat{f}_{\text{ref}}(\hat{p}) / \hat{F}_{\text{ref}}(\hat{p})$.
 
 ## Citation
 
