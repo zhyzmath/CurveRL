@@ -1,0 +1,98 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Data files (should not be committed)
+**/data/
+**/models/
+**/checkpoints/
+**/ckpt-*/
+
+# Training outputs
+outputs/
+output/
+wandb/
+*.log
+*.out
+
+# Local large directories
+data/
+checkpoints/
+models/
+flash_attention/
+flash-attention/
+model/
+
+# Model files
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.ckpt
+
+# Dataset files
+*.parquet
+*.json
+*.csv
+*.h5
+*.hdf5
+
+# Wheel files
+*.whl
+
+# Ray
+/tmp/ray/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Test / lint caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Hydra outputs
+.hydra/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Local configuration (keep examples but ignore local paths)
+# Note: Training scripts with local paths should use placeholders
+
+# Local working directories
+.claude/
+
+# Paper draft PDF (not part of the released source tree)
+*.pdf
+
+# AI coding agent guides (kept locally, not part of the release)
+AGENTS.md
+CLAUDE.md
