@@ -43,7 +43,7 @@ Context-level reweighting has emerged as a central algorithmic lever in **Reinfo
 
 CurveRL applies a **quantile coordinate transform** through a reference CDF `F_ref` with density `f_ref`, giving the utility
 
-$$\mathcal{U}_\theta(F_{\mathrm{ref}}) = \mathbb{E}_{x \sim d_0}\left[\psi\!\left(F_{\mathrm{ref}}(p_\theta(x))\right)\right]$$
+$$\mathcal{U}_\theta(F_{\mathrm{ref}}) = \mathbb{E}_{x \sim d_0}\left[\psi\left(F_{\mathrm{ref}}(p_\theta(x))\right)\right]$$
 
 with the **log distortion** `ψ(u) = log u`, corresponding to a risk-seeking preference that emphasizes hard prompts. The induced gradient yields the CurveRL weight
 
