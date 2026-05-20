@@ -39,12 +39,6 @@ CKPT_DIR="$(resolve_project_path "${CKPT_PATH}")"
 CKPT_DIR="${CKPT_DIR%/}"
 [[ "$(basename -- "${CKPT_DIR}")" == "actor" ]] && CKPT_DIR="$(dirname -- "${CKPT_DIR}")"
 
-# Two accepted layouts:
-#   1. Trained checkpoint:  .../global_step_N  (must contain actor/huggingface/)
-#   2. Local HF model dir:  any directory with config.json
-# The training script saves a merged HF model at global_step_*/actor/huggingface/
-# by default (CHECKPOINT_SAVE_CONTENTS includes hf_model), which is what we load
-# from here — it sidesteps FSDP world_size matching during eval.
 if [[ "$(basename -- "${CKPT_DIR}")" == global_step_* ]]; then
   HF_DIR="${CKPT_DIR}/actor/huggingface"
   if [[ -d "${HF_DIR}" ]]; then

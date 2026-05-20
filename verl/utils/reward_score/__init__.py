@@ -16,7 +16,14 @@
 from verl.utils.import_utils import deprecated
 
 
-def default_compute_score(data_source, solution_str, ground_truth, extra_info=None, sandbox_fusion_url=None, concurrent_semaphore=None):
+def default_compute_score(
+    data_source,
+    solution_str,
+    ground_truth,
+    extra_info=None,
+    sandbox_fusion_url=None,
+    concurrent_semaphore=None,
+):
     """Compute the score for a given solution based on the data source.
 
     Args:
@@ -31,14 +38,16 @@ def default_compute_score(data_source, solution_str, ground_truth, extra_info=No
 
     Raises:
         NotImplementedError: If the reward function is not implemented for the given data source.
-    """    
+    """
     if data_source.startswith("maze"):
         from .maze import judge_maze
+
         res = judge_maze(solution_str=solution_str, ground_truth=ground_truth)
         return res
-    
+
     elif data_source == "openai/gsm8k":
         from . import math_verify
+
         res = math_verify.compute_score(solution_str, ground_truth)
 
         # from . import deepmath
@@ -54,6 +63,7 @@ def default_compute_score(data_source, solution_str, ground_truth, extra_info=No
         # To use it, override the `compute_score` function with the following implementation:
 
         from . import math_verify
+
         res = math_verify.compute_score(solution_str, ground_truth)
 
         # from . import deepmath
@@ -68,8 +78,8 @@ def default_compute_score(data_source, solution_str, ground_truth, extra_info=No
         )
 
     elif (
-        data_source == "math_dapo" 
-        or data_source.startswith("aime") 
+        data_source == "math_dapo"
+        or data_source.startswith("aime")
         or data_source == "amc23"
         or data_source.startswith("dapo")
         or data_source.startswith("deepmath-103k")
@@ -82,6 +92,8 @@ def default_compute_score(data_source, solution_str, ground_truth, extra_info=No
         or data_source == "beyondaime"
         or data_source == "hmmt_feb_2025"
         or data_source == "hmmt_nov_2025"
+        or data_source.startswith("hmmt")
+        or data_source.startswith("brumo")
         or data_source == "jeebench"
     ):
         # from . import math_dapo
@@ -89,6 +101,7 @@ def default_compute_score(data_source, solution_str, ground_truth, extra_info=No
         # res = math_dapo.compute_score(solution_str, ground_truth)
 
         from . import math_verify
+
         res = math_verify.compute_score(solution_str, ground_truth)
 
         # from . import deepmath
@@ -111,7 +124,13 @@ def default_compute_score(data_source, solution_str, ground_truth, extra_info=No
             from . import sandbox_fusion
 
             # Pass the URL directly, ground_truth likely contains test cases here
-            res = sandbox_fusion.compute_score(sandbox_fusion_url, concurrent_semaphore, solution_str, ground_truth, continuous=True)
+            res = sandbox_fusion.compute_score(
+                sandbox_fusion_url,
+                concurrent_semaphore,
+                solution_str,
+                ground_truth,
+                continuous=True,
+            )
         else:
             # If no sandbox URL is provided, fall back to prime_code or raise error
             from . import prime_code
@@ -122,13 +141,23 @@ def default_compute_score(data_source, solution_str, ground_truth, extra_info=No
         from . import geo3k
 
         res = geo3k.compute_score(solution_str, ground_truth)
-    elif data_source in ["searchR1_nq", "searchR1_triviaqa", "searchR1_popqa", "searchR1_hotpotqa", "searchR1_2wikimultihopqa", "searchR1_musique", "searchR1_bamboogle"]:
+    elif data_source in [
+        "searchR1_nq",
+        "searchR1_triviaqa",
+        "searchR1_popqa",
+        "searchR1_hotpotqa",
+        "searchR1_2wikimultihopqa",
+        "searchR1_musique",
+        "searchR1_bamboogle",
+    ]:
         from . import search_r1_like_qa_em
 
         res = search_r1_like_qa_em.compute_score(solution_str, ground_truth)
 
     else:
-        raise NotImplementedError(f"Reward function is not implemented for {data_source=}")
+        raise NotImplementedError(
+            f"Reward function is not implemented for {data_source=}"
+        )
 
     if isinstance(res, dict):
         return res
@@ -139,11 +168,25 @@ def default_compute_score(data_source, solution_str, ground_truth, extra_info=No
 
 
 @deprecated("verl.utils.reward_score.default_compute_score")
-def _default_compute_score(data_source, solution_str, ground_truth, extra_info=None, sandbox_fusion_url=None, concurrent_semaphore=None):
+def _default_compute_score(
+    data_source,
+    solution_str,
+    ground_truth,
+    extra_info=None,
+    sandbox_fusion_url=None,
+    concurrent_semaphore=None,
+):
     """
     Legacy function API to be deprecated. Please use `default_compute_score` instead.
     """
-    return default_compute_score(data_source, solution_str, ground_truth, extra_info, sandbox_fusion_url, concurrent_semaphore)
+    return default_compute_score(
+        data_source,
+        solution_str,
+        ground_truth,
+        extra_info,
+        sandbox_fusion_url,
+        concurrent_semaphore,
+    )
 
 
 __all__ = ["default_compute_score"]
