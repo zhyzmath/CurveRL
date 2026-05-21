@@ -9,7 +9,7 @@ CurveRL: Principled Distribution-Aware Context Reweighting for LLM Reasoning
 
 <p align="center">
   <a href="#overview">📖 Overview</a> &nbsp;·&nbsp;
-  <a href="#method">📖 Method</a> &nbsp;·&nbsp;
+  <a href="#method">🧩 Method</a> &nbsp;·&nbsp;
   <a href="#main-results">📊 Main Results</a> &nbsp;·&nbsp;
   <a href="#getting-started">🚀 Getting Started</a>
   <br>
@@ -28,7 +28,7 @@ Context-level reweighting has emerged as a central algorithmic lever in **Reinfo
 
 
 <a id="method"></a>
-## 📖 Method
+## 🧩 Method
 
 ### Distribution-aware utility in quantile space
 
