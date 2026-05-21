@@ -46,7 +46,7 @@ which has the form of a **reverse hazard rate**: `1 / F_ref(p̂)` emphasizes the
 <a id="main-results"></a>
 ## 📊 Main Results
 
-We train **Qwen3-1.7B-Base** and **Qwen3-4B-Base** on POLARIS-53K (≈50K math reasoning prompts) under the `verl` framework. All methods share the same training loop and differ only in the prompt-weighting rule. We use batch size `|B| = 256`, `N = 8` rollouts per prompt, and `t_0 = 10`.
+We train **Qwen3-1.7B-Base** and **Qwen3-4B-Base** on POLARIS-53K (≈53K math reasoning prompts) under the `verl` framework. All methods share the same training loop and differ only in the prompt-weighting rule. We use batch size `|B| = 256`, `N = 8` rollouts per prompt, and `t_0 = 10`.
 
 CurveRL is compared against **GRPO** and **MaxRL** on five benchmarks in the main paper — AIME 2025, BeyondAIME, HMMT 02/25, HMMT 02/26, MATH-500 — and three more in the appendix (BRUMO 2025, HMMT 11/25, Minerva).
 
