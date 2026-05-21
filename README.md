@@ -5,17 +5,16 @@ CurveRL: Principled Distribution-Aware Context Reweighting for LLM Reasoning
 <div align="center">
   <a href="#"><img src="https://img.shields.io/badge/arXiv-CurveRL-red?logo=arXiv"></a> &nbsp;
   <a href="https://github.com/zhyzmath/CurveRL"><img src="https://img.shields.io/badge/GitHub-CurveRL-94c320?logo=github"></a> &nbsp;
-  <a href="#"><img src="https://img.shields.io/badge/HuggingFace-CurveRL-FF9B9E?logo=huggingface"></a> &nbsp;
 </div>
 
 <p align="center">
   <a href="#overview">📖 Overview</a> &nbsp;·&nbsp;
-  <a href="#key-contributions">🏆 Key Contributions</a> &nbsp;·&nbsp;
   <a href="#method">📖 Method</a> &nbsp;·&nbsp;
-  <a href="#main-results">📊 Main Results</a>
+  <a href="#main-results">📊 Main Results</a> &nbsp;·&nbsp;
+  <a href="#getting-started">🚀 Getting Started</a>
   <br>
-  <a href="#getting-started">🚀 Getting Started</a> &nbsp;·&nbsp;
   <a href="#acknowledgements">🤝 Acknowledgements</a> &nbsp;·&nbsp;
+  <a href="#contact">📧 Contact</a> &nbsp;·&nbsp;
   <a href="#citation">🔗 Citation</a>
 </p>
 
@@ -26,14 +25,6 @@ Context-level reweighting has emerged as a central algorithmic lever in **Reinfo
 
 - **A unified optimality framework.** We cast prompt reweighting as **context distribution control** and formulate the optimal weight as a *functional derivative* of a utility functional defined in the pass-rate function space. This subsumes existing pointwise schemes — REINFORCE, GRPO, MaxRL — as special cases.
 - **A distribution-aware instantiation.** Pointwise weights are determined solely by the absolute value of the pass rate $\hat{p}$, and so suffer from a *weight collapse*: in the early stage most prompts have $\hat{p} \approx 0$ and in the late stage most prompts have $\hat{p} \approx 1$, yielding nearly indistinguishable weights. CurveRL replaces this with a **quantile coordinate transform**, in which the weight depends not on the absolute value of $\hat{p}$ but on its **rank and density** in the evolving pass-rate distribution.
-
-<a id="key-contributions"></a>
-## 🏆 Key Contributions
-
-- We formulate prompt reweighting in RLVR as **context distribution control** and define optimal weights through utility-dependent *functional derivatives* in pass-rate function space.
-- We instantiate this principle with a **distribution-aware utility in pass-rate quantile space**, yielding CurveRL, which characterizes the rank and density structure of the evolving pass-rate distribution.
-- We run extensive experiments showing that CurveRL improves the **pass@1 / pass@k Pareto frontier** over GRPO and MaxRL across multiple math reasoning benchmarks on Qwen3-1.7B-Base and Qwen3-4B-Base, and we analyze the underlying mechanism.
-
 
 
 <a id="method"></a>
@@ -50,16 +41,6 @@ with the **log distortion** `ψ(u) = log u`, corresponding to a risk-seeking pre
 $$w(\hat{p}) = \frac{f_{\mathrm{ref}}(\hat{p})}{F_{\mathrm{ref}}(\hat{p})}$$
 
 which has the form of a **reverse hazard rate**: `1 / F_ref(p̂)` emphasizes the *lower-quantile* prompts, while `f_ref(p̂)` makes the allocation **data-driven** by tracking pass-rate regions that are actually populated under the current policy.
-
-
-### Algorithm
-
-At each training step `t`, we estimate `F_ref` and `f_ref` from a **lagged** sliding window `W` that stores the active pass rates from the last `t_0` batches. Concretely:
-
-1. **Weight estimation.** For each grid point `p ∈ {1/N, 2/N, …, (N−1)/N}`, evaluate `f̂_ref(p)` and `F̂_ref(p)` from `W` via a histogram estimator.
-2. **Gradient estimation.** For each prompt `x` in the current batch, draw `N` rollouts, compute the empirical pass rate `p̂`. If `p̂ ∈ (0, 1)`, set the per-rollout advantage to `w_t(p̂) · (rᵢ − p̂)` with `w_t(p̂) = f̂_ref(p̂) / F̂_ref(p̂)`, and append `p̂` to `W`.
-3. **Window update.** Evict pass rates older than `t − t_0`, keeping a length-`t_0` window. The reference distribution remains lagged (built from previous batches only).
-
 
 
 <a id="main-results"></a>
@@ -159,6 +140,16 @@ bash qwen3_experiments/run_qwen3_eva.sh
 ## 🤝 Acknowledgements
 
 This work builds on top of [`verl`](https://github.com/volcengine/verl) (Ray + Hydra + FSDP + vLLM) and the [`maxrl`](https://github.com/tajwarfahim/maxrl) baseline. We thank both projects for their open-source contributions.
+
+
+
+<a id="contact"></a>
+## 📧 Contact
+
+For questions about the code, feel free to reach out:
+
+- Yizhou Zhao: [yzzhao@sas.upenn.edu](mailto:yzzhao@sas.upenn.edu)
+- Ke Sun: [kesun6@upenn.edu](mailto:kesun6@upenn.edu)
 
 
 
