@@ -3,7 +3,7 @@ CurveRL: Principled Distribution-Aware Context Reweighting for LLM Reasoning
 </h1>
 
 <div align="center">
-  <a href="#"><img src="https://img.shields.io/badge/arXiv-CurveRL-red?logo=arXiv"></a> &nbsp;
+  <a href="https://arxiv.org/abs/2605.24331"><img src="https://img.shields.io/badge/arXiv-CurveRL-red?logo=arXiv"></a> &nbsp;
   <a href="https://github.com/zhyzmath/CurveRL"><img src="https://img.shields.io/badge/GitHub-CurveRL-94c320?logo=github"></a> &nbsp;
 </div>
 
@@ -162,7 +162,7 @@ If you find CurveRL useful, please cite:
 @article{curverl2026,
   title   = {CurveRL: Principled Distribution-Aware Context Reweighting for LLM Reasoning},
   author  = {Sun, Ke and Zhao, Yizhou and Xin, Jiayi and Long, Qi and Su, Weijie},
-  journal = {arXiv preprint},
+  journal = {arXiv preprint arXiv:2605.24331},
   year    = {2026},
 }
 ```
